@@ -35,6 +35,12 @@ public interface GameTable {
 	 * Returns mark the given game cell is marked with.
 	 */
 	public Mark getCellMark(Position position);
+	
+	
+	/**
+	 * Returns {@link Position}s for all cells adjacent to the cell at specified position.
+	 */
+	public Position[] getAdjacentCellsPositionsFor(Position position);
 
 	/**
 	 * Returns total number of rows in this game table
