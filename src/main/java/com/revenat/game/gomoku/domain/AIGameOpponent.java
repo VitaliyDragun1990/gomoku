@@ -10,7 +10,7 @@ package com.revenat.game.gomoku.domain;
 public interface AIGameOpponent {
 
 	/**
-	 * Determine best possible next turn {@link Position} for
+	 * Determines best possible next turn {@link Position} for
 	 * player designated with specified {@link Mark}
 	 */
 	Position determineNextTurnPositionFor(final Mark playerMark);

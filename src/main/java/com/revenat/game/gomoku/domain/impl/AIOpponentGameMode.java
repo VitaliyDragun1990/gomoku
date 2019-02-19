@@ -1,6 +1,13 @@
-package com.revenat.game.gomoku.domain;
+package com.revenat.game.gomoku.domain.impl;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+
+import com.revenat.game.gomoku.domain.AIGameOpponent;
+import com.revenat.game.gomoku.domain.GameMode;
+import com.revenat.game.gomoku.domain.GameSession;
+import com.revenat.game.gomoku.domain.Mark;
+import com.revenat.game.gomoku.domain.Position;
 
 /**
  * Game mode that allows player to play against AI. Player plays with X, AI with O.
@@ -18,6 +25,9 @@ public class AIOpponentGameMode implements GameMode {
 	private boolean isHumanTurn = true;
 
 	public AIOpponentGameMode(GameSession gameSession, AIGameOpponent opponent) {
+		Objects.requireNonNull(gameSession, "GameSession can not be null.");
+		Objects.requireNonNull(opponent, "AIGameOpponent can not be null.");
+		
 		this.gameSession = gameSession;
 		this.opponent = opponent;
 	}
@@ -34,6 +44,10 @@ public class AIOpponentGameMode implements GameMode {
 	
 	private void processOpponentTurn() {
 		Position position = opponent.determineNextTurnPositionFor(getCurrentPlayer());
+		if (!position.isValid()) {
+			throw new AIOpponentCanNotMakeTurnException("AI opponent can not find position to make turn to. Is it draw?");
+		}
+		
 		gameSession.processPlayerTurn(position);
 	}
 

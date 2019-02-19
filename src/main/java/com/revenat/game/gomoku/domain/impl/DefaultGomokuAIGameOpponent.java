@@ -1,25 +1,58 @@
-package com.revenat.game.gomoku.domain;
+package com.revenat.game.gomoku.domain.impl;
 
+import java.util.Objects;
 import java.util.Random;
 
+import com.revenat.game.gomoku.domain.AIGameOpponent;
+import com.revenat.game.gomoku.domain.DifficultyLevel;
+import com.revenat.game.gomoku.domain.GameTable;
+import com.revenat.game.gomoku.domain.Mark;
+import com.revenat.game.gomoku.domain.Position;
+
 /**
- * Represents AI opponent in Gomoku game which is capable of making the best
+ * Represents default implementation of the AI opponent in Gomoku game which is capable of making the best
  * possible turn against its opponent.
  * 
  * @author Vitaly Dragun
  *
  */
-public class GomokuAIGameOpponent implements AIGameOpponent {
+public class DefaultGomokuAIGameOpponent implements AIGameOpponent {
+	/**
+	 * Represents how much you should add to some {@link Position} {@code ordinal()}
+	 * to get next adjacent {@link Position} in some main diagonal on {@link GameTable}
+	 */
+	private static final int NEXT_IN_MAIN_DIAG_INCREMENT = 16;
+	/**
+	 * Represents how much you should add to some {@link Position} {@code ordinal()}
+	 * to get next adjacent {@link Position} in some secondary diagonal on {@link GameTable}
+	 */
+	private static final int NEXT_IN_SECOND_DIAG_INCREMENT = 14;
 	private static final Position NOT_FOUND = Position.from(-1);
 
 	private final GameTable gameTable;
+	private DifficultyLevel level = DifficultyLevel.EASY;
 
-	public GomokuAIGameOpponent(GameTable gameTable) {
+	public DefaultGomokuAIGameOpponent(GameTable gameTable) {
+		Objects.requireNonNull(gameTable, "GameTable can not be null.");
 		this.gameTable = gameTable;
 	}
+	
+
+	/**
+	 * Sets difficulty level for AI opponent.
+	 * @param level
+	 */
+	public void setDifficultylevel(DifficultyLevel level) {
+		Objects.requireNonNull(level, "Difficulty level can not be null");
+		this.level = level;
+	}
+
 
 	@Override
 	public Position determineNextTurnPositionFor(final Mark playerMark) {
+		Objects.requireNonNull(playerMark, "playerMark can not be null");
+		checkPlayerMark(playerMark);
+		
 		Position position = findPositionToWin(playerMark);
 
 		if (positionNotFound(position)) {
@@ -37,6 +70,14 @@ public class GomokuAIGameOpponent implements AIGameOpponent {
 		return position;
 	}
 
+	private void checkPlayerMark(Mark playerMark) {
+		if (playerMark == Mark.EMPTY) {
+			throw new IllegalArgumentException("Player mark should be 'X' or 'O', not 'EMPTY'");
+		}
+		
+	}
+
+
 	/**
 	 * Try to find position to mark on next turn to win immediately.
 	 * @param playerMark player for whom this position brings victory.
@@ -52,7 +93,7 @@ public class GomokuAIGameOpponent implements AIGameOpponent {
 	 * @param playerMark player for whom this position prevents opponent from winning.
 	 */
 	private Position findPositionToPreventOpponentFromWinning(final Mark playerMark) {
-		int alreadyMarkedCount = 3;
+		int alreadyMarkedCount = level.level();
 		Mark opponentMark = playerMark.getOpponent();
 		return findPositionToMarkFor(alreadyMarkedCount, opponentMark);
 	}
@@ -187,8 +228,8 @@ public class GomokuAIGameOpponent implements AIGameOpponent {
 	}
 
 	private Position checkDiagonals(Position upperLeft, Position upperRight, int alreadyMarkedCount, Mark playerMark) {
-		Position bottomLeft = Position.from(upperRight.ordinal() + 14 * alreadyMarkedCount);
-		Position bottomRight = Position.from(upperLeft.ordinal() + 16 * alreadyMarkedCount);
+		Position bottomLeft = Position.from(upperRight.ordinal() + NEXT_IN_SECOND_DIAG_INCREMENT * alreadyMarkedCount);
+		Position bottomRight = Position.from(upperLeft.ordinal() + NEXT_IN_MAIN_DIAG_INCREMENT * alreadyMarkedCount);
 		
 		// Try to find by secondary diagonal
 		Position toMark = findPositionToMark(upperRight, bottomLeft, alreadyMarkedCount, playerMark);
@@ -207,34 +248,16 @@ public class GomokuAIGameOpponent implements AIGameOpponent {
 			return findPositionByColumn(from, to, alreadyMarkedCount, playerMark);
 		}
 		else if (isSecondaryDiagonalCombination(from, to)) {
-			return findPositionBySecondaryDiagonal(from, alreadyMarkedCount, playerMark);
+			return findPositionByDiagonal(from, alreadyMarkedCount, playerMark, NEXT_IN_SECOND_DIAG_INCREMENT);
 		}
 		else if (isMainDiagonalCombination(from, to)) {
-			return findPositionByMainDiagonal(from, alreadyMarkedCount, playerMark);
+			return findPositionByDiagonal(from, alreadyMarkedCount, playerMark, NEXT_IN_MAIN_DIAG_INCREMENT);
 		}
 		
 		return NOT_FOUND;
 	}
-
-	private Position findPositionBySecondaryDiagonal(Position from, int alreadyMarkedCount, Mark playerMark) {
-		int markedCellsCount = 0;
-		Position emptyPosition = NOT_FOUND;
-		Position current = null;
-		Position next = from;
-		
-		for (int i = 0; i <= alreadyMarkedCount; i++) {
-			current = next;
-			if (gameTable.isCellMarked(current, playerMark)) {
-				markedCellsCount++;
-			} else if (gameTable.isCellEmpty(current)) {
-				emptyPosition = current;
-			}
-			next = Position.from(next.ordinal() + 14);
-		}
-		return tryToFindPositionToMark(markedCellsCount, alreadyMarkedCount, emptyPosition);
-	}
 	
-	private Position findPositionByMainDiagonal(Position from, int alreadyMarkedCount, Mark playerMark) {
+	private Position findPositionByDiagonal(Position from, int alreadyMarkedCount, Mark playerMark, int increment) {
 		int markedCellsCount = 0;
 		Position emptyPosition = NOT_FOUND;
 		Position current = null;
@@ -247,7 +270,7 @@ public class GomokuAIGameOpponent implements AIGameOpponent {
 			} else if (gameTable.isCellEmpty(current)) {
 				emptyPosition = current;
 			}
-			next = Position.from(next.ordinal() + 16);
+			next = Position.from(next.ordinal() + increment);
 		}
 		return tryToFindPositionToMark(markedCellsCount, alreadyMarkedCount, emptyPosition);
 	}

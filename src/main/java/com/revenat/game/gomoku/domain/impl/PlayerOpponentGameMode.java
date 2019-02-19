@@ -1,5 +1,7 @@
-package com.revenat.game.gomoku.domain;
+package com.revenat.game.gomoku.domain.impl;
 
+import com.revenat.game.gomoku.domain.GameMode;
+import com.revenat.game.gomoku.domain.Mark;
 
 /**
  * Game mode that allows two player to play against

@@ -1,22 +1,55 @@
-package com.revenat.game.gomoku.domain;
+package com.revenat.game.gomoku.domain.impl;
 
 import java.util.Arrays;
+import java.util.Objects;
+
+import com.revenat.game.gomoku.domain.GameArbiter;
+import com.revenat.game.gomoku.domain.GameTable;
+import com.revenat.game.gomoku.domain.Mark;
+import com.revenat.game.gomoku.domain.Position;
 
 /**
- * Implementation of {@link GameArbiter} specific to
+ * Default implementation of {@link GameArbiter} specific to
  * Gomoku game.
  * 
  * @author Vitaly Dragun
  *
  */
-public class GomokuGameArbiter implements GameArbiter {
+public class DefaultGomokuGameArbiter implements GameArbiter {
+	/**
+	 * Represents how much you should add to some {@link Position} {@code ordinal()}
+	 * to get next adjacent {@link Position} in some main diagonal on {@link GameTable}
+	 */
+	private static final int NEXT_IN_MAIN_DIAG_INCREMENT = 16;
+	/**
+	 * Represents how much you should add to some {@link Position} {@code ordinal()}
+	 * to get next adjacent {@link Position} in some secondary diagonal on {@link GameTable}
+	 */
+	private static final int NEXT_IN_SECOND_DIAG_INCREMENT = 14;
+	/**
+	 * Represents how much you should add to some {@link Position} {@code ordinal()}
+	 * to get next adjacent {@link Position} in some row on {@link GameTable}
+	 */
+	private static final int NEXT_IN_ROW_INCREMENT = 1;
+	/**
+	 * Represents how much you should add to some {@link Position} {@code ordinal()}
+	 * to get next adjacent {@link Position} in some column on {@link GameTable}
+	 */
+	private static final int NEXT_IN_COLUMN_INCREMENT = 15;
+	/**
+	 * Represents how many adjacent cells on {@link GameTable} should be marked
+	 * with the same not {@code EMPTY} {@link Mark} to represents a winning
+	 * combination
+	 */
+	private static final int WINNING_COUNT = 5;
 	private static final int TABLE_SIZE = 15;
 	
 	private final GameTable gameTable;
-	private final Position[] winningCombination = new Position[5];
-	private int count = 0;
+	private final Position[] winningCombination = new Position[WINNING_COUNT];
+	private int winningComboCount = 0;
 	
-	public GomokuGameArbiter(GameTable gameTable) {
+	public DefaultGomokuGameArbiter(GameTable gameTable) {
+		Objects.requireNonNull(gameTable, "GameTable can not be null.");
 		this.gameTable = gameTable;
 	}
 
@@ -90,8 +123,8 @@ public class GomokuGameArbiter implements GameArbiter {
 	}
 	
 	private boolean hasWinnerByDiagonals(Position upperLeft, Position upperRight) {
-		Position bottomLeft = Position.from(upperRight.ordinal() + 56);
-		Position bottomRight = Position.from(upperLeft.ordinal() + 64);
+		Position bottomLeft = Position.from(upperRight.ordinal() + 4 * NEXT_IN_SECOND_DIAG_INCREMENT);
+		Position bottomRight = Position.from(upperLeft.ordinal() + 4 * NEXT_IN_MAIN_DIAG_INCREMENT);
 		
 		// Check by secondary diagonal
 		if (isWinningCombo(upperRight, bottomLeft)) {
@@ -103,49 +136,26 @@ public class GomokuGameArbiter implements GameArbiter {
 
 	private boolean isWinningCombo(Position from, Position to) {
 		if (isRowCombination(from, to)) {
-			return isWinningRowCombo(from, to);
+			return isWinningCombo(from, NEXT_IN_ROW_INCREMENT);
 		} 
 		else if (isColumnCombination(from, to)) {
-			return isWinningColumnCombo(from, to);
+			return isWinningCombo(from, NEXT_IN_COLUMN_INCREMENT);
 		} 
 		else if (isSecondaryDiagonalCombination(from, to)) {
-			return isWinningSecondaryDiagonalCombo(from, to);
+			return isWinningCombo(from, NEXT_IN_SECOND_DIAG_INCREMENT);
 		} 
 		else if (isMainDiagonalCombination(from, to)) {
-			return isWinningMainDiagonalCombo(from, to);
+			return isWinningCombo(from, NEXT_IN_MAIN_DIAG_INCREMENT);
 		}
 		return false;
 	}
 	
-	private boolean isWinningColumnCombo(Position from, Position to) {
-		int row = from.row();
-		int col = from.column();
-		Position current = Position.from(row, col);
+	private boolean isWinningCombo(Position from, int nextPositionIncrement) {
+		Position current = Position.from(from.ordinal());
 		Position next = null;
 		
-		for (int i = 0; i < 4; i++) {
-			next = Position.from(current.ordinal() + 15);
-			
-			if (!markedBySamePlayer(current, next)) {
-				clearWinningCombo();
-				return false;
-			}
-			
-			addToWinningCombo(current);
-			current = next;
-		}
-		addToWinningCombo(current);
-		return true;
-	}
-
-	private boolean isWinningRowCombo(Position from, Position to) {
-		int row = from.row();
-		int col = from.column();
-		Position current = Position.from(row, col);
-		Position next = null;
-				
-		for (int i = 0; i < 4; i++) {
-			next = Position.from(current.ordinal() + 1);
+		for (int i = 1; i < WINNING_COUNT; i++) {
+			next = Position.from(current.ordinal() + nextPositionIncrement);
 			
 			if (!markedBySamePlayer(current, next)) {
 				clearWinningCombo();
@@ -159,44 +169,6 @@ public class GomokuGameArbiter implements GameArbiter {
 		return true;
 	}
 	
-	private boolean isWinningSecondaryDiagonalCombo(Position from, Position to) {
-		Position current = Position.from(from.ordinal());
-		Position next = null;
-		
-		for (int i = 0; i < 4; i++) {
-			next = Position.from(current.ordinal() + 14);
-			
-			if (!markedBySamePlayer(current, next)) {
-				clearWinningCombo();
-				return false;
-			}
-			
-			addToWinningCombo(current);
-			current = next;
-		}
-		addToWinningCombo(current);
-		return true;
-	}
-	
-	private boolean isWinningMainDiagonalCombo(Position from, Position to) {
-		Position current = Position.from(from.ordinal());
-		Position next = null;
-		
-		for (int i = 0; i < 4; i++) {
-			next = Position.from(current.ordinal() + 16);
-			
-			if (!markedBySamePlayer(current, next)) {
-				clearWinningCombo();
-				return false;
-			}
-			
-			addToWinningCombo(current);
-			current = next;
-		}
-		addToWinningCombo(current);
-		return true;
-	}
-
 	private CheckResult winnerFound() {
 		CheckResult result = CheckResult.winner(winningCombination);
 		clearWinningCombo();
@@ -204,12 +176,12 @@ public class GomokuGameArbiter implements GameArbiter {
 	}
 	
 	private void addToWinningCombo(Position position) {
-		winningCombination[count++] = position;
+		winningCombination[winningComboCount++] = position;
 	}
 	
 	private void clearWinningCombo() {
 		Arrays.fill(winningCombination, null);
-		count = 0;
+		winningComboCount = 0;
 	}
 	
 	private boolean markedBySamePlayer(Position posA, Position posB) {
@@ -224,19 +196,19 @@ public class GomokuGameArbiter implements GameArbiter {
 		return gameTable.getCellMark(position);
 	}
 
-	private boolean isSecondaryDiagonalCombination(Position from, Position to) {
-		return from.ordinal() + 56 == to.ordinal();
+	private static boolean isSecondaryDiagonalCombination(Position from, Position to) {
+		return from.ordinal() + 4 * NEXT_IN_SECOND_DIAG_INCREMENT == to.ordinal();
 	}
 	
-	private boolean isMainDiagonalCombination(Position from, Position to) {
-		return from.ordinal() + 64 == to.ordinal();
+	private static boolean isMainDiagonalCombination(Position from, Position to) {
+		return from.ordinal() + 4 * NEXT_IN_MAIN_DIAG_INCREMENT == to.ordinal();
 	}
 
-	private boolean isColumnCombination(Position from, Position to) {
+	private static boolean isColumnCombination(Position from, Position to) {
 		return from.column() == to.column();
 	}
 
-	private boolean isRowCombination(Position from, Position to) {
+	private static boolean isRowCombination(Position from, Position to) {
 		return from.row() == to.row();
 	}
 }

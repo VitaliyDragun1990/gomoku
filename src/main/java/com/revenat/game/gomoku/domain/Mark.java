@@ -10,7 +10,7 @@ package com.revenat.game.gomoku.domain;
 public enum Mark {
 	X {
 		@Override
-		public String toString() {
+		public String getValue() {
 			return " X ";
 		}
 		@Override
@@ -20,7 +20,7 @@ public enum Mark {
 	},
 	O {
 		@Override
-		public String toString() {
+		public String getValue() {
 			return " O ";
 		}
 		@Override
@@ -30,7 +30,7 @@ public enum Mark {
 	},
 	EMPTY {
 		@Override
-		public String toString() {
+		public String getValue() {
 			return "   ";
 		}
 		@Override
@@ -40,7 +40,11 @@ public enum Mark {
 	};
 	
 	@Override
-	public abstract String toString();
+	public String toString() {
+		return getValue();
+	}
+	
+	public abstract String getValue();
 	
 	public abstract Mark getOpponent();
 }

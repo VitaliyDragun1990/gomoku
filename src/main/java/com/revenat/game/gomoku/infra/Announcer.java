@@ -6,6 +6,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Utility class that manages collections of listeners
@@ -32,6 +33,7 @@ public class Announcer<T extends EventListener> {
 	 * @param listener
 	 */
 	public void addListener(T listener) {
+		Objects.requireNonNull(listener, "Listener can not be null.");
 		listeners.add(listener);
 	}
 	

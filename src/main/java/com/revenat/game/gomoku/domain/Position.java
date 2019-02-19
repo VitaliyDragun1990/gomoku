@@ -68,25 +68,14 @@ public final class Position {
 		Position other = (Position) obj;
 		return column == other.column && row == other.row;
 	}
+	
 
-	@SuppressWarnings("unused")
-	private void checkParams(int row, int column) {
-		if (row < 0 || row > 14) {
-			throw new IllegalArgumentException("Illegal row number " + row + ". Valid range from 0 to 14 inclusive.");
-		}
-		if (column < 0 || column > 14) {
-			throw new IllegalArgumentException("Illegal row number " + column + ". Valid range from 0 to 14 inclusive.");
-		}
+	@Override
+	public String toString() {
+		return "Position [row=" + row + ", column=" + column + "]";
 	}
 	
-	@SuppressWarnings("unused")
-	private void checkParams(int ord) {
-		if (!isValid(ord)) {
-			throw new IllegalArgumentException("Illegal ordinal number " + ord + ". Valid range from 1 to 255 inclusive.");
-		}
-	}
-	
-	private boolean isValid(int ordn) {
+	private static boolean isValid(int ordn) {
 		return ordn >= ORDINAL_INNER_BOUN && ordn <= ORDINAL_UPPER_BOUND;
 	}
 	

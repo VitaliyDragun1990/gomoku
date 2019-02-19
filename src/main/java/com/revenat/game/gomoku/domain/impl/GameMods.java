@@ -1,4 +1,10 @@
-package com.revenat.game.gomoku.domain;
+package com.revenat.game.gomoku.domain.impl;
+
+import java.util.Objects;
+
+import com.revenat.game.gomoku.domain.AIGameOpponent;
+import com.revenat.game.gomoku.domain.GameMode;
+import com.revenat.game.gomoku.domain.GameSession;
 
 /**
  * Factory class for different {@link GameMode}s available for Gomoku game
@@ -30,6 +36,9 @@ public final class GameMods {
 	 * @return
 	 */
 	public static GameMode computerOpponent(GameSession gameSession, AIGameOpponent opponent) {
+		Objects.requireNonNull(gameSession, "GameSession can not be null.");
+		Objects.requireNonNull(opponent, "AIGameOpponent can not be null.");
+		
 		return new AIOpponentGameMode(gameSession, opponent);
 	}
 }

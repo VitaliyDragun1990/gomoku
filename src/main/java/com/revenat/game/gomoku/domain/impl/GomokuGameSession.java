@@ -1,5 +1,14 @@
-package com.revenat.game.gomoku.domain;
+package com.revenat.game.gomoku.domain.impl;
 
+import java.util.Objects;
+
+import com.revenat.game.gomoku.domain.GameArbiter;
+import com.revenat.game.gomoku.domain.GameEventListener;
+import com.revenat.game.gomoku.domain.GameMode;
+import com.revenat.game.gomoku.domain.GameSession;
+import com.revenat.game.gomoku.domain.GameTable;
+import com.revenat.game.gomoku.domain.Mark;
+import com.revenat.game.gomoku.domain.Position;
 import com.revenat.game.gomoku.domain.GameArbiter.CheckResult;
 import com.revenat.game.gomoku.infra.Announcer;
 
@@ -21,6 +30,9 @@ public class GomokuGameSession implements GameSession {
 	private GameMode gameMode = GameMods.playerOpponent();
 
 	public GomokuGameSession(GameTable gameTable, GameArbiter arbiter) {
+		Objects.requireNonNull(gameTable, "GameTable can not be null.");
+		Objects.requireNonNull(arbiter, "GameArbiter can not be null.");
+		
 		this.gameTable = gameTable;
 		this.arbiter = arbiter;
 	}
@@ -32,6 +44,7 @@ public class GomokuGameSession implements GameSession {
 	
 	@Override
 	public void setGameMode(GameMode gameMode) {
+		Objects.requireNonNull(gameMode, "GameMode can not be null");
 		this.gameMode = gameMode;
 	}
 	
@@ -43,6 +56,8 @@ public class GomokuGameSession implements GameSession {
 	
 	@Override
 	public void processPlayerTurn(Position position) {
+		Objects.requireNonNull(position, "Turn position can not be null.");
+		
 		if (isCellOccupied(position)) {
 			listeners.announce().invalidTurnPosition(position);
 			return;

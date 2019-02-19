@@ -3,16 +3,16 @@ package com.revenat.game.gomoku;
 import javax.swing.JOptionPane;
 
 import com.revenat.game.gomoku.domain.AIGameOpponent;
-import com.revenat.game.gomoku.domain.AIOpponentGameMode;
 import com.revenat.game.gomoku.domain.GameArbiter;
 import com.revenat.game.gomoku.domain.GameMode;
 import com.revenat.game.gomoku.domain.GameSession;
 import com.revenat.game.gomoku.domain.GameTable;
-import com.revenat.game.gomoku.domain.GomokuAIGameOpponent;
-import com.revenat.game.gomoku.domain.GomokuGameArbiter;
-import com.revenat.game.gomoku.domain.GomokuGameSession;
-import com.revenat.game.gomoku.domain.GomokuGameTable;
-import com.revenat.game.gomoku.domain.PlayerOpponentGameMode;
+import com.revenat.game.gomoku.domain.impl.AIOpponentGameMode;
+import com.revenat.game.gomoku.domain.impl.GomokuGameSession;
+import com.revenat.game.gomoku.domain.impl.GomokuGameTable;
+import com.revenat.game.gomoku.domain.impl.ImprovedGomokuAIGameOpponent;
+import com.revenat.game.gomoku.domain.impl.ImprovedGomokuGameArbiter;
+import com.revenat.game.gomoku.domain.impl.PlayerOpponentGameMode;
 import com.revenat.game.gomoku.ui.GameWindow;
 
 
@@ -24,16 +24,23 @@ import com.revenat.game.gomoku.ui.GameWindow;
  *
  */
 public class Main {
-	private static final String TITLE = "Game mode selection";
-	private static final String MESSAGE = "Please select game mode:";
-	private static final String AGAINST_PLAYER = "Play against another player";
-	private static final String AGAINST_COMPUTER = "Play against computer";
+	private static final String GAME_MODE_MESSAGE = "Please select game mode:";
+	private static final String GAME_MODE_TITLE = "Game mode selection";
+	private static final String MODE_AGAINST_PLAYER = "Play against another player";
+	private static final String MODE_AGAINST_COMPUTER = "Play against computer";
 	
 	private GameSession gameSession;
 	private GameTable gameTable;
 	
 	public Main() {
 		gameSession = buildGameSession();
+	}
+	
+	private GameSession buildGameSession() {
+		gameTable = new GomokuGameTable();
+//		GameArbiter arbiter = new DefaultGomokuGameArbiter(gameTable);
+		GameArbiter arbiter = new ImprovedGomokuGameArbiter(gameTable);
+		return new GomokuGameSession(gameTable, arbiter);
 	}
 	
 	private void startGameAgainstPlayer() {
@@ -49,13 +56,7 @@ public class Main {
 		GameWindow window = new GameWindow(gameSession);
 		window.displayWindow();
 	}
-	
-	private GameSession buildGameSession() {
-		gameTable = new GomokuGameTable();
-		GameArbiter arbiter = new GomokuGameArbiter(gameTable);
-		return new GomokuGameSession(gameTable, arbiter);
-	}
-	
+
 	private GameMode againstPlayer() {
 		return new PlayerOpponentGameMode();
 	}
@@ -65,7 +66,8 @@ public class Main {
 	}
 	
 	private AIGameOpponent getAIOpponent() {
-		return new GomokuAIGameOpponent(gameTable);
+//		return new DefaultGomokuAIGameOpponent(gameTable);
+		return new ImprovedGomokuAIGameOpponent(gameTable);
 	}
 
 	public static void main(String[] args) {
@@ -73,16 +75,23 @@ public class Main {
 		
 		String userChoise = getUserChoise();
 		
-		if (AGAINST_PLAYER.equals(userChoise)) {
+		if (MODE_AGAINST_PLAYER.equals(userChoise)) {
 			main.startGameAgainstPlayer();
-		} else if (AGAINST_COMPUTER.equals(userChoise)) {
+		} else if (MODE_AGAINST_COMPUTER.equals(userChoise)) {
 			main.startGameAgainstAI();
 		}
 	}
 
+	/*private static DifficultyLevel getDifficultyLevel() {
+		String level = (String) JOptionPane.showInputDialog(null, DIFFICULTY_LEVEL_MESSAGE, DIFFICULTY_LEVEL_TITLE,
+				JOptionPane.QUESTION_MESSAGE, null, new String[]{LEVEL_HARD, LEVEL_EASY},
+				LEVEL_EASY);
+		return DifficultyLevel.valueOf(level);
+	}*/
+
 	private static String getUserChoise() {
-		return (String) JOptionPane.showInputDialog(null, MESSAGE, TITLE,
-				JOptionPane.QUESTION_MESSAGE, null, new String[]{AGAINST_COMPUTER, AGAINST_PLAYER},
-				AGAINST_COMPUTER);
+		return (String) JOptionPane.showInputDialog(null, GAME_MODE_MESSAGE, GAME_MODE_TITLE,
+				JOptionPane.QUESTION_MESSAGE, null, new String[]{MODE_AGAINST_COMPUTER, MODE_AGAINST_PLAYER},
+				MODE_AGAINST_COMPUTER);
 	}
 }

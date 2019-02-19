@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -31,7 +32,9 @@ import com.revenat.game.gomoku.domain.Position;
  */
 @SuppressWarnings("serial")
 public class GameWindow extends JFrame {
+	private static final String TITLE = "Gomoku game application";
 	private static final int CELL_FONT_SIZE = 35;
+	private static final Font DEFAULT_FONT = new Font(Font.SERIF, Font.PLAIN, CELL_FONT_SIZE);
 	private static final int CELL_HEIGHT = 45;
 	private static final int CELL_WIDTH = 45;
 	private static final int TOTAL_ROWS = 15;
@@ -41,7 +44,8 @@ public class GameWindow extends JFrame {
 	private final JLabel[] gameTable = new JLabel[TOTAL_ROWS * TOTAL_COLUMNS];
 	
 	public GameWindow(GameSession gameSession) {
-		super("Tic-tac-toe");
+		Objects.requireNonNull(gameSession, "GameSession can not be null.");
+		
 		this.gameSession = gameSession;
 		this.gameSession.addListener(new UIGameEventListener(this));
 		
@@ -65,7 +69,7 @@ public class GameWindow extends JFrame {
 			tableCell.setPreferredSize(new Dimension(CELL_WIDTH, CELL_HEIGHT));
 			tableCell.setHorizontalAlignment(SwingConstants.CENTER);
 			tableCell.setVerticalAlignment(SwingConstants.CENTER);
-			tableCell.setFont(new Font(Font.SERIF, Font.PLAIN, CELL_FONT_SIZE));
+			tableCell.setFont(DEFAULT_FONT);
 			tableCell.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			add(tableCell);
@@ -91,6 +95,7 @@ public class GameWindow extends JFrame {
 			}
 			
 		});
+		this.setTitle(TITLE);
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setResizable(false);
 		this.pack();
@@ -114,7 +119,7 @@ public class GameWindow extends JFrame {
 
 	void renderTableCell(int position, Mark mark) {
 		Color color = mark == Mark.X ? Color.BLUE : Color.BLACK;
-		render(position, mark.toString(), color);
+		render(position, mark.getValue(), color);
 	}
 	
 	void render(int position, String content, Color color) {
