@@ -1,13 +1,14 @@
 package com.revenat.game.gomoku.domain.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.revenat.game.gomoku.domain.GameArbiter;
 import com.revenat.game.gomoku.domain.GameTable;
 import com.revenat.game.gomoku.domain.Mark;
 import com.revenat.game.gomoku.domain.Position;
-import com.revenat.game.gomoku.infra.DataSet;
-import com.revenat.game.gomoku.infra.DynaArray;
+
 
 /**
  * Improved implementation of {@link GameArbiter} specific to Gomoku game.
@@ -52,7 +53,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 
 	private CheckResult lookForWinnerByRows() {
 		for (int row = 0; row < TABLE_SIZE; row++) {
-			DataSet<Position> positions = new DynaArray<>();
+			List<Position> positions = new ArrayList<>();
 			Position previous = Position.from(row, 0);
 			positions.add(previous);
 			for (int col = 1; col < TABLE_SIZE; col++) {
@@ -78,7 +79,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 
 	private CheckResult lookForWinnerByColumns() {
 		for (int col = 0; col < TABLE_SIZE; col++) {
-			DataSet<Position> positions = new DynaArray<>();
+			List<Position> positions = new ArrayList<>();
 			Position previous = Position.from(0, col);
 			positions.add(previous);
 			for (int row = 1; row < TABLE_SIZE; row++) {
@@ -117,7 +118,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 		for (int row = 0; row < TABLE_SIZE - winningCountMinus1; row++) {
 			for (int col = 0; col < TABLE_SIZE - winningCountMinus1; col++) {
 				Position previous = Position.from(row, col);
-				DataSet<Position> positions = new DynaArray<>();
+				List<Position> positions = new ArrayList<>();
 				positions.add(previous);
 				for (int increment = 1; increment < WINNING_COUNT; increment++) {
 					Position current = Position.from(row + increment, col + increment);
@@ -143,7 +144,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 		for (int row = 0; row < TABLE_SIZE - winningCountMinus1; row++) {
 			for (int col = winningCountMinus1; col < TABLE_SIZE; col++) {
 				Position previous = Position.from(row, col);
-				DataSet<Position> positions = new DynaArray<>();
+				List<Position> positions = new ArrayList<>();
 				positions.add(previous);
 				for (int increment = 1; increment < WINNING_COUNT; increment++) {
 					Position current = Position.from(row + increment, col - increment);
@@ -172,7 +173,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 		return CheckResult.draw();
 	}
 
-	private CheckResult winnerFound(DataSet<Position> winningCombo) {
+	private CheckResult winnerFound(List<Position> winningCombo) {
 		return CheckResult.winner(winningCombo.toArray(new Position[5]));
 	}
 

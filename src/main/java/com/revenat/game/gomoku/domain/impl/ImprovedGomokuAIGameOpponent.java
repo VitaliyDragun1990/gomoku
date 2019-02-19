@@ -1,5 +1,7 @@
 package com.revenat.game.gomoku.domain.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -7,8 +9,6 @@ import com.revenat.game.gomoku.domain.AIGameOpponent;
 import com.revenat.game.gomoku.domain.GameTable;
 import com.revenat.game.gomoku.domain.Mark;
 import com.revenat.game.gomoku.domain.Position;
-import com.revenat.game.gomoku.infra.DataSet;
-import com.revenat.game.gomoku.infra.DynaArray;
 
 /**
  * Represents improved implementation of the AI opponent in Gomoku game which is capable of making the best
@@ -74,7 +74,7 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			for (int col = 0; col < TABLE_SIZE - WINNING_COUNT - 1; col++) {
 				boolean hasEmptyCells = false;
 				int matchedCount = 0;
-				DataSet<Position> inspectedCells = new DynaArray<>();
+				List<Position> inspectedCells = new ArrayList<>();
 				for (int increment = 0; increment < WINNING_COUNT; increment++) {
 					Position position = Position.from(row, col + increment);
 					inspectedCells.add(position);
@@ -101,7 +101,7 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			for (int row = 0; row < TABLE_SIZE - WINNING_COUNT - 1; row++) {
 				boolean hasEmptyCells = false;
 				int matchedCount = 0;
-				DataSet<Position> inspectedCells = new DynaArray<>();
+				List<Position> inspectedCells = new ArrayList<>();
 				for (int increment = 0; increment < WINNING_COUNT; increment++) {
 					Position position = Position.from(row + increment, col);
 					inspectedCells.add(position);
@@ -128,7 +128,7 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			for (int col = 0; col < TABLE_SIZE - WINNING_COUNT - 1; col++) {
 				boolean hasEmptyCells = false;
 				int matchedCount = 0;
-				DataSet<Position> inspectedCells = new DynaArray<>();
+				List<Position> inspectedCells = new ArrayList<>();
 				for (int increment = 0; increment < WINNING_COUNT; increment++) {
 					Position position = Position.from(row + increment, col + increment);
 					inspectedCells.add(position);
@@ -155,7 +155,7 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			for (int col = WINNING_COUNT - 1; col < TABLE_SIZE; col++) {
 				boolean hasEmptyCells = false;
 				int matchedCount = 0;
-				DataSet<Position> inspectedCells = new DynaArray<>();
+				List<Position> inspectedCells = new ArrayList<>();
 				for (int increment = 0; increment < WINNING_COUNT; increment++) {
 					Position position = Position.from(row + increment, col - increment);
 					inspectedCells.add(position);
@@ -177,7 +177,7 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 		return NOT_FOUND;
 	}
 
-	private Position findEmptyPositionForTurn(DataSet<Position> positions) {
+	private Position findEmptyPositionForTurn(List<Position> positions) {
 		for (int i = 0; i < positions.size(); i++) {
 			Position current = positions.get(i);
 			if (!isEmpty(current)) {
