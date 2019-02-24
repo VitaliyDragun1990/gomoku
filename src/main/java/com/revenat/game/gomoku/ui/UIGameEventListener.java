@@ -1,5 +1,6 @@
 package com.revenat.game.gomoku.ui;
 
+import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
@@ -7,7 +8,9 @@ import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
 
 import java.awt.Color;
-import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.revenat.game.gomoku.domain.GameEventListener;
 import com.revenat.game.gomoku.domain.Mark;
@@ -20,16 +23,18 @@ import com.revenat.game.gomoku.domain.Position;
  *
  */
 public class UIGameEventListener implements GameEventListener {
+	private static final Logger LOG = LoggerFactory.getLogger(UIGameEventListener.class);
+	
 	private final GameWindow gameWindow;
 
 	public UIGameEventListener(GameWindow gameWindow) {
-		Objects.requireNonNull(gameWindow, "GameWindow can not be null.");
+		requireNonNull(gameWindow, "GameWindow can not be null.");
 		this.gameWindow = gameWindow;
 	}
 
 	@Override
 	public void invalidTurnPosition(Position position) {
-		Objects.requireNonNull(position, "Turn position can not be null.");
+		requireNonNull(position, "Turn position can not be null.");
 		
 		showMessageDialog(gameWindow, "Cell is not free! Choose another cell", gameWindow.getTitle(),
 				INFORMATION_MESSAGE);
@@ -37,16 +42,16 @@ public class UIGameEventListener implements GameEventListener {
 
 	@Override
 	public void turnIsMade(Position position, Mark mark) {
-		Objects.requireNonNull(position, "Turn position can not be null.");
-		Objects.requireNonNull(mark, "Mark can not be null.");
+		requireNonNull(position, "Turn position can not be null.");
+		requireNonNull(mark, "Mark can not be null.");
 		
 		gameWindow.renderTableCell(position.ordinal(), mark);
 	}
 
 	@Override
 	public void winnerIsFound(Mark winner, Position[] winningCombination) {
-		Objects.requireNonNull(winner, "Winner mark can not be null.");
-		Objects.requireNonNull(winningCombination, "Winning combination can not be null.");
+		requireNonNull(winner, "Winner mark can not be null.");
+		requireNonNull(winningCombination, "Winning combination can not be null.");
 		
 		highlightWinningCombination(winner, winningCombination);
 		
@@ -78,8 +83,10 @@ public class UIGameEventListener implements GameEventListener {
 	
 	private void processUserChoice(int userChoice) {
 		if (userChoice == YES_OPTION) {
+			LOG.info("User choose to play another Gomoku game session.");
 			gameWindow.startNewGameSession();
 		} else {
+			LOG.info("User choose to exit Gomoku game. Buy!");
 			System.exit(0);
 		}
 	}

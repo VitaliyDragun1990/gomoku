@@ -1,6 +1,9 @@
 package com.revenat.game.gomoku.domain.impl;
 
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.revenat.game.gomoku.domain.GameArbiter;
 import com.revenat.game.gomoku.domain.GameEventListener;
@@ -20,6 +23,8 @@ import com.revenat.game.gomoku.infra.Announcer;
  *
  */
 public class GomokuGameSession implements GameSession {
+	private static final Logger LOG = LoggerFactory.getLogger(GomokuGameSession.class);
+	
 	private final GameTable gameTable;
 	private final GameArbiter arbiter;
 	private final Announcer<GameEventListener> listeners = Announcer.to(GameEventListener.class);
@@ -30,8 +35,8 @@ public class GomokuGameSession implements GameSession {
 	private GameMode gameMode = GameMods.playerOpponent();
 
 	public GomokuGameSession(GameTable gameTable, GameArbiter arbiter) {
-		Objects.requireNonNull(gameTable, "GameTable can not be null.");
-		Objects.requireNonNull(arbiter, "GameArbiter can not be null.");
+		requireNonNull(gameTable, "GameTable can not be null.");
+		requireNonNull(arbiter, "GameArbiter can not be null.");
 		
 		this.gameTable = gameTable;
 		this.arbiter = arbiter;
@@ -39,12 +44,13 @@ public class GomokuGameSession implements GameSession {
 	
 	@Override
 	public void addListener(GameEventListener listener) {
+		requireNonNull(listener, "Listener can not be null");
 		listeners.addListener(listener);
 	}
 	
 	@Override
 	public void setGameMode(GameMode gameMode) {
-		Objects.requireNonNull(gameMode, "GameMode can not be null");
+		requireNonNull(gameMode, "GameMode can not be null");
 		this.gameMode = gameMode;
 	}
 	
@@ -52,13 +58,17 @@ public class GomokuGameSession implements GameSession {
 	public void startNewGame() {
 		clearGameTable();
 		gameMode.startGame();
+		LOG.info("Start new game session.");
 	}
 	
 	@Override
 	public void processPlayerTurn(Position position) {
-		Objects.requireNonNull(position, "Turn position can not be null.");
+		requireNonNull(position, "Turn position can not be null.");
+		LOG.debug("Player '{}' chooses position {} to make turn to", gameMode.getCurrentPlayer(), position);
 		
 		if (isCellOccupied(position)) {
+			LOG.warn("Player '{}' chose already occupied position {} to make turn to.",
+					gameMode.getCurrentPlayer(), position);
 			listeners.announce().invalidTurnPosition(position);
 			return;
 		}
@@ -71,12 +81,16 @@ public class GomokuGameSession implements GameSession {
 		Mark currentPlayer = gameMode.getCurrentPlayer();
 		takeTurn(position, currentPlayer);
 		listeners.announce().turnIsMade(position, currentPlayer);
+		LOG.info("Player '{}' made turn to position {}", currentPlayer, position);
 		
 		CheckResult checkResult = arbiter.checkForGameOver();
 		if (checkResult.isWinner()) {
-			listeners.announce().winnerIsFound(currentPlayer, checkResult.getWinningCombination());
+			Position[] winningCombination = checkResult.getWinningCombination();
+			LOG.info("Game over. Winner: '{}' with winning combination {}", currentPlayer, winningCombination);
+			listeners.announce().winnerIsFound(currentPlayer, winningCombination);
 			return true;
 		} else if (checkResult.isDraw()) {
+			LOG.info("Game over. Is is a draw.");
 			listeners.announce().draw();
 			return true;
 		}

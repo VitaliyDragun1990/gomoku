@@ -2,6 +2,9 @@ package com.revenat.game.gomoku;
 
 import javax.swing.JOptionPane;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.revenat.game.gomoku.domain.AIGameOpponent;
 import com.revenat.game.gomoku.domain.GameArbiter;
 import com.revenat.game.gomoku.domain.GameMode;
@@ -24,6 +27,7 @@ import com.revenat.game.gomoku.ui.GameWindow;
  *
  */
 public class Main {
+	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 	private static final String GAME_MODE_MESSAGE = "Please select game mode:";
 	private static final String GAME_MODE_TITLE = "Game mode selection";
 	private static final String MODE_AGAINST_PLAYER = "Play against another player";
@@ -44,10 +48,12 @@ public class Main {
 	}
 	
 	private void startGameAgainstPlayer() {
+		LOG.info("Starting new game agains another player");
 		startGame(againstPlayer());
 	}
 	
 	private void startGameAgainstAI() {
+		LOG.info("Starting new game agains AI opponent");
 		startGame(againstAI());
 	}
 	

@@ -72,7 +72,7 @@ public final class Position {
 
 	@Override
 	public String toString() {
-		return "Position [row=" + row + ", column=" + column + "]";
+		return "[row=" + row + ", column=" + column + "]";
 	}
 	
 	private static boolean isValid(int ordn) {

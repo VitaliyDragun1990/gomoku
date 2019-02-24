@@ -19,6 +19,9 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.revenat.game.gomoku.domain.GameSession;
 import com.revenat.game.gomoku.domain.Mark;
 import com.revenat.game.gomoku.domain.Position;
@@ -32,6 +35,8 @@ import com.revenat.game.gomoku.domain.Position;
  */
 @SuppressWarnings("serial")
 public class GameWindow extends JFrame {
+	private static final Logger LOG = LoggerFactory.getLogger(GameWindow.class);
+	
 	private static final String TITLE = "Gomoku game application";
 	private static final int CELL_FONT_SIZE = 35;
 	private static final Font DEFAULT_FONT = new Font(Font.SERIF, Font.PLAIN, CELL_FONT_SIZE);
@@ -82,6 +87,7 @@ public class GameWindow extends JFrame {
 				
 			});
 		}
+		LOG.info("Built game table with size {}x{}", TOTAL_ROWS, TOTAL_COLUMNS);
 	}
 	
 	private void initializeWindow() {
@@ -90,6 +96,7 @@ public class GameWindow extends JFrame {
 			public void windowClosing(WindowEvent e) {
 				int userChoice = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit the game?");
 				if (userChoice == JOptionPane.YES_OPTION) {
+					LOG.info("User choose to exit Gomoku game. Bye!");
 					System.exit(0);
 				}
 			}
@@ -133,7 +140,11 @@ public class GameWindow extends JFrame {
 	}
 	
 	private void handlePlayerTurn(int position) {
-		gameSession.processPlayerTurn(Position.from(position));
+		try {
+			gameSession.processPlayerTurn(Position.from(position));
+		} catch (RuntimeException e) {
+			LOG.error("Error in the game",e);
+		}
 	}
 	
 }

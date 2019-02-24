@@ -1,9 +1,13 @@
 package com.revenat.game.gomoku.domain.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.revenat.game.gomoku.domain.AIGameOpponent;
 import com.revenat.game.gomoku.domain.GameTable;
@@ -18,6 +22,8 @@ import com.revenat.game.gomoku.domain.Position;
  *
  */
 public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
+	private static final Logger LOG = LoggerFactory.getLogger(ImprovedGomokuAIGameOpponent.class);
+	
 	private static final int WINNING_COUNT = 5;
 	private static final int TABLE_SIZE = 15;
 	private static final Position NOT_FOUND = Position.from(-1);
@@ -25,14 +31,15 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 	private final GameTable gameTable;
 
 	public ImprovedGomokuAIGameOpponent(GameTable gameTable) {
-		Objects.requireNonNull(gameTable, "GameTable can not be null.");
+		requireNonNull(gameTable, "GameTable can not be null.");
 		this.gameTable = gameTable;
 	}
 
 	@Override
 	public Position determineNextTurnPositionFor(final Mark playerMark) {
-		Objects.requireNonNull(playerMark, "playerMark can not be null");
+		requireNonNull(playerMark, "playerMark can not be null");
 		checkPlayerMark(playerMark);
+		LOG.trace("AI opponent '{}' tries to find next turn position", playerMark);
 		
 		Mark[] players = {playerMark, playerMark.getOpponent()};
 		
@@ -49,27 +56,43 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 	}
 
 	private Position tryMakeTurn(Mark player, int notEmptyCount) {
+		LOG.trace("AI opponent tries to find a free position among {} cell(s) already marked with {}",
+				notEmptyCount, player);
+		
 		Position position = tryMakeTurnByRow(player, notEmptyCount);
 		if (positionIsFound(position)) {
+			LOG.debug("AI opponent finds a free position {} in a row among {} cell(s) marked with {}",
+					position, notEmptyCount, player);
 			return position;
 		}
 		position = tryMakeTurnByColumn(player, notEmptyCount);
 		if (positionIsFound(position)) {
+			LOG.debug("AI opponent finds a free position {} in a column among {} cell(s) marked with {}",
+					position, notEmptyCount, player);
 			return position;
 		}
 		position = tryMakeTurnBySecondaryDiagonal(player, notEmptyCount);
 		if (positionIsFound(position)) {
+			LOG.debug("AI opponent finds a free position {} in a secondary diagonal among {} cell(s) marked with {}",
+					position, notEmptyCount, player);
 			return position;
 		}
 		position = tryMakeTurnByMainDiagonal(player, notEmptyCount);
 		if (positionIsFound(position)) {
+			LOG.debug("AI opponent finds a free position {} in a main diagonal among {} cell(s) marked with {}",
+					position, notEmptyCount, player);
 			return position;
 		}
+		
+		LOG.trace("AI opponent failes to find any free position among {} cell(s) marked with {}", notEmptyCount, player);
 		return NOT_FOUND;
 	}
 
 
 	private Position tryMakeTurnByRow(Mark player, int notEmptyCount) {
+		LOG.trace("AI opponent tries to find a free position in row among {} cell(s) already marked with {}",
+				notEmptyCount, player);
+		
 		for (int row = 0; row < TABLE_SIZE; row++) {
 			for (int col = 0; col < TABLE_SIZE - WINNING_COUNT - 1; col++) {
 				boolean hasEmptyCells = false;
@@ -93,10 +116,15 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			}
 		}
 		
+		LOG.trace("AI opponent failes to find a free position in row among {} cell(s) already marked with {}",
+				notEmptyCount, player);
 		return NOT_FOUND;
 	}
 	
 	private Position tryMakeTurnByColumn(Mark player, int notEmptyCount) {
+		LOG.trace("AI opponent tries to find a free position in column among {} cell(s) already marked with {}",
+				notEmptyCount, player);
+		
 		for (int col = 0; col < TABLE_SIZE; col++) {
 			for (int row = 0; row < TABLE_SIZE - WINNING_COUNT - 1; row++) {
 				boolean hasEmptyCells = false;
@@ -120,10 +148,15 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			}
 		}
 		
+		LOG.trace("AI opponent failes to find a free position in row among {} cell(s) already marked with {}",
+				notEmptyCount, player);
 		return NOT_FOUND;
 	}
 	
 	private Position tryMakeTurnByMainDiagonal(Mark player, int notEmptyCount) {
+		LOG.trace("AI opponent tries to find a free position in main diagonal among {} cell(s) already marked with {}",
+				notEmptyCount, player);
+		
 		for (int row = 0; row < TABLE_SIZE - WINNING_COUNT - 1; row++) {
 			for (int col = 0; col < TABLE_SIZE - WINNING_COUNT - 1; col++) {
 				boolean hasEmptyCells = false;
@@ -147,10 +180,15 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			}
 		}
 		
+		LOG.trace("AI opponent failes to find a free position in main diagonal among {} cell(s) already marked with {}",
+				notEmptyCount, player);
 		return NOT_FOUND;
 	}
 	
 	private Position tryMakeTurnBySecondaryDiagonal(Mark player, int notEmptyCount) {
+		LOG.trace("AI opponent tries to find a free position in secondary diagonal among {} cell(s) already marked with {}",
+				notEmptyCount, player);
+		
 		for (int row = 0; row < TABLE_SIZE - WINNING_COUNT - 1; row++) {
 			for (int col = WINNING_COUNT - 1; col < TABLE_SIZE; col++) {
 				boolean hasEmptyCells = false;
@@ -174,10 +212,13 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 			}
 		}
 		
+		LOG.trace("AI opponent failes to find a free position in secondary diagonal among {} cell(s) already marked with {}",
+				notEmptyCount, player);
 		return NOT_FOUND;
 	}
 
 	private Position findEmptyPositionForTurn(List<Position> positions) {
+		
 		for (int i = 0; i < positions.size(); i++) {
 			Position current = positions.get(i);
 			if (!isEmpty(current)) {
@@ -227,6 +268,7 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 	 * Try to find random empty cell position to mark on next turn.
 	 */
 	private Position findRandomEmptyPosition() {
+		LOG.trace("AI opponent tries to find a random free position to make a turn to");
 		Position[] freeCells = new Position[gameTable.getTotalCells()];
 		int count = 0;
 
@@ -242,8 +284,10 @@ public class ImprovedGomokuAIGameOpponent implements AIGameOpponent {
 		
 		if (count > 0) {
 			int randomIndex = new Random().nextInt(count);
+			LOG.debug("AI opponent finds random position {} to make a turn to.", freeCells[randomIndex]);
 			return freeCells[randomIndex];
 		}
+		LOG.trace("AI opponent failes to find a random free position to make a turn to");
 		return NOT_FOUND;
 	}
 

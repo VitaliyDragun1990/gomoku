@@ -1,13 +1,18 @@
 package com.revenat.game.gomoku.domain.impl;
 
-import java.util.Objects;
+import static java.util.Objects.requireNonNull;
+
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.revenat.game.gomoku.domain.AIGameOpponent;
 import com.revenat.game.gomoku.domain.GameMode;
 import com.revenat.game.gomoku.domain.GameSession;
 import com.revenat.game.gomoku.domain.Mark;
 import com.revenat.game.gomoku.domain.Position;
+import com.revenat.game.gomoku.domain.exception.AIOpponentCanNotMakeTurnException;
 
 /**
  * Game mode that allows player to play against AI. Player plays with X, AI with O.
@@ -17,6 +22,8 @@ import com.revenat.game.gomoku.domain.Position;
  *
  */
 public class AIOpponentGameMode implements GameMode {
+	private static final Logger LOG = LoggerFactory.getLogger(AIOpponentGameMode.class);
+	
 	private static final Mark HUMAN_PLAYER = Mark.X;
 	private static final Mark AI_PLAYER = Mark.O;
 	
@@ -25,8 +32,8 @@ public class AIOpponentGameMode implements GameMode {
 	private boolean isHumanTurn = true;
 
 	public AIOpponentGameMode(GameSession gameSession, AIGameOpponent opponent) {
-		Objects.requireNonNull(gameSession, "GameSession can not be null.");
-		Objects.requireNonNull(opponent, "AIGameOpponent can not be null.");
+		requireNonNull(gameSession, "GameSession can not be null.");
+		requireNonNull(opponent, "AIGameOpponent can not be null.");
 		
 		this.gameSession = gameSession;
 		this.opponent = opponent;
@@ -43,11 +50,14 @@ public class AIOpponentGameMode implements GameMode {
 	}
 	
 	private void processOpponentTurn() {
+		LOG.debug("AI opponent '{}' tries to find a free position to move to.", getCurrentPlayer());
 		Position position = opponent.determineNextTurnPositionFor(getCurrentPlayer());
 		if (!position.isValid()) {
-			throw new AIOpponentCanNotMakeTurnException("AI opponent can not find position to make turn to. Is it draw?");
+			LOG.error("AI opponent '{}' can not find a free position to make a move to.", getCurrentPlayer());
+			throw new AIOpponentCanNotMakeTurnException("No free position to move to. Is it draw?");
 		}
 		
+		LOG.debug("AI opponent '{}' choose position {} to make it's move to.", getCurrentPlayer(), position);
 		gameSession.processPlayerTurn(position);
 	}
 
@@ -74,5 +84,9 @@ public class AIOpponentGameMode implements GameMode {
 		isHumanTurn = !isHumanTurn;
 	}
 
+	@Override
+	public String toString() {
+		return "AIOpponentGameMode";
+	}
 
 }

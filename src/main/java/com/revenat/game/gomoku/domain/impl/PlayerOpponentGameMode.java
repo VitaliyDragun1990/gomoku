@@ -44,5 +44,9 @@ public class PlayerOpponentGameMode implements GameMode {
 		xTurn = !xTurn;
 	}
 
+	@Override
+	public String toString() {
+		return "PlayerOpponentGameMode";
+	}
 
 }

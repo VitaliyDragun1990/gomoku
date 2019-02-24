@@ -1,4 +1,4 @@
-package com.revenat.game.gomoku.domain.impl;
+package com.revenat.game.gomoku.domain.exception;
 
 /**
  * Notifies about situation when AI opponent can not find position to make turn to.

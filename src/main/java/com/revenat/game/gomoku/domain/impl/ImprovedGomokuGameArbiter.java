@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.revenat.game.gomoku.domain.GameArbiter;
 import com.revenat.game.gomoku.domain.GameTable;
 import com.revenat.game.gomoku.domain.Mark;
@@ -19,6 +22,7 @@ import com.revenat.game.gomoku.domain.Position;
  *
  */
 public class ImprovedGomokuGameArbiter implements GameArbiter {
+	private static final Logger LOG = LoggerFactory.getLogger(ImprovedGomokuGameArbiter.class);
 	/**
 	 * Represents how many adjacent cells on {@link GameTable} should be marked with
 	 * the same not {@code EMPTY} {@link Mark} to represents a winning combination
@@ -35,16 +39,20 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 
 	@Override
 	public CheckResult checkForGameOver() {
+		LOG.trace("GameArbiter starts checking for game over");
 		CheckResult result = lookForWinnerByRows();
 		if (result.isWinner()) {
+			LOG.debug("GameArbiter finds the winner by a row");
 			return result;
 		}
 		result = lookForWinnerByColumns();
 		if (result.isWinner()) {
+			LOG.debug("GameArbiter finds the winner by a column");
 			return result;
 		}
 		result = lookForWinnerByDiagonals();
 		if (result.isWinner()) {
+			LOG.debug("GameArbiter finds the winner by a diagonal");
 			return result;
 		}
 
@@ -52,6 +60,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 	}
 
 	private CheckResult lookForWinnerByRows() {
+		LOG.trace("GameArbiter checks for the winner by rows");
 		for (int row = 0; row < TABLE_SIZE; row++) {
 			List<Position> positions = new ArrayList<>();
 			Position previous = Position.from(row, 0);
@@ -74,10 +83,12 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 			}
 		}
 
+		LOG.trace("GameArbiter can't find any winner by rows");
 		return CheckResult.keepOnPlaying();
 	}
 
 	private CheckResult lookForWinnerByColumns() {
+		LOG.trace("GameArbiter checks for the winner by columns");
 		for (int col = 0; col < TABLE_SIZE; col++) {
 			List<Position> positions = new ArrayList<>();
 			Position previous = Position.from(0, col);
@@ -100,6 +111,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 			}
 		}
 
+		LOG.trace("GameArbiter can't find any winner by columns");
 		return CheckResult.keepOnPlaying();
 	}
 
@@ -113,6 +125,7 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 	}
 
 	private CheckResult lookForWinnerByMainDiagonal() {
+		LOG.trace("GameArbiter checks for the winner by main diagonal");
 		int winningCountMinus1 = WINNING_COUNT - 1;
 
 		for (int row = 0; row < TABLE_SIZE - winningCountMinus1; row++) {
@@ -135,10 +148,12 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 			}
 		}
 
+		LOG.trace("GameArbiter can't find any winner by main diagonal");
 		return CheckResult.keepOnPlaying();
 	}
 
 	private CheckResult lookForWinnerBySecondaryDiagonal() {
+		LOG.trace("GameArbiter checks for the winner by secondary diagonal");
 		int winningCountMinus1 = WINNING_COUNT - 1;
 
 		for (int row = 0; row < TABLE_SIZE - winningCountMinus1; row++) {
@@ -161,15 +176,19 @@ public class ImprovedGomokuGameArbiter implements GameArbiter {
 			}
 		}
 
+		LOG.trace("GameArbiter can't find any winner by secondary diagonal");
 		return CheckResult.keepOnPlaying();
 	}
 
 	private CheckResult checkForDraw() {
+		LOG.trace("GameArbiter checks for a draw");
 		for (int ordinal = 1; ordinal <= gameTable.getTotalCells(); ordinal++) {
 			if (gameTable.isCellEmpty(Position.from(ordinal))) {
+				LOG.trace("GameArbiter can't find the draw");
 				return CheckResult.keepOnPlaying();
 			}
 		}
+		LOG.debug("GameArbiter finds the draw");
 		return CheckResult.draw();
 	}
 
