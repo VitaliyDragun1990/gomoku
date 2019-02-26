@@ -24,7 +24,7 @@
 	<!-- <logger name="com.revenat.game.gomoku.domain.ImprovedGomokuAIGameOpponent" level="debug" /> -->
 <!-- 	<logger name="com.revenat.game.gomoku.infra" level="trace" /> -->
 	
-	<root level="debug">
+	<root level="info">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="ROLLING" />
 	</root>

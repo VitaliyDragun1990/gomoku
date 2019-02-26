@@ -1,0 +1,9 @@
+<!DOCTYPE xml>
+<configuration>
+	
+	<root level="off">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="ROLLING" />
+	</root>
+	
+</configuration>
