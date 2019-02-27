@@ -66,7 +66,6 @@ public class Main {
 		UserDialogProvider dialogProvider = new SwingUserDialogProvider();
 		GameEventListener gameListener = new UIGameEventListener(window, dialogProvider);
 		gameSession.addListener(gameListener);
-//		window.displayWindow();
 		window.startNewGame();
 	}
 
